@@ -1,6 +1,7 @@
 #include "myplayer.h"
 #include "ui_myplayer.h"
 #include <QTime>
+#include <QDebug>
 //#include <QtTest/QTest>
 #include <QMediaContent>
 #include<conio.h>
@@ -28,8 +29,12 @@ myPlayer::myPlayer(QWidget *parent) :
     connect(ui->Add,SIGNAL(clicked()),this, SLOT(addMusic()));
 //    connect(_playlist, SIGNAL(currentMediaChanged(QMediaContent)), this, SLOT(metaMusic()));
     connect(_playlist, SIGNAL(currentMediaChanged(QMediaContent)), this, SLOT(metaMusic()));
+//    connect(_playlist, SIGNAL(availabilityChanged()), this, slot(metaMusic()));
 //    connect(_playlist, SIGNAL(QMediaObject::availabilityChanged()), this, SLOT(metaMusic()));
+    connect(_player, QOverload<QMultimedia::AvailabilityStatus>::of(&QMediaObject::availabilityChanged),
+            this, QOverload<QMultimedia::AvailabilityStatus>::of(&myPlayer::_error));
 }
+
 
 myPlayer::~myPlayer()
 {
@@ -47,6 +52,8 @@ void myPlayer::addMusic()
 
 void myPlayer::metaMusic()
 {
+     ui->_Album->setText("Banana");
+
 
 //   connect (_player, QOverload < > :: of ( & QMediaObject :: metaDataChanged ) , [ = ] () { / * ... * / });
 //   connect(ui, SIGNAL(_playlist->QMediaObject::isMetaDataAvailable()), this, SLOT(addd));
@@ -71,18 +78,29 @@ void myPlayer::metaMusic()
 //      ui->_Track->setText((sss.QMediaMetaData::metaData("Title")).toString() );
 //      ui->_Track->setText(_player->metaData(QMediaMetaData::Title).toString());
 
-        QThread::msleep(3000);
-    qDebug()<<"Song title: "<<(_player->metaData(QMediaMetaData::Title));
+/*        QThread::msleep(3000);
+    qDebug()<<"Song title: "<<(_player->metaData(QMediaMetaData::Title).toString());
     qDebug()<<"Song duration: "<<_player->duration();
     QMediaContent temp = _player->currentMedia();
     QMediaResourceList temp_resourse_list = temp.resources();
     QMediaResource temp_resource = temp_resourse_list.takeLast();
     qDebug() << temp_resource.audioBitRate();
 //
-//     ui->_Artist->setText();
+
+
+//     ui->_Artist->setText();*/
 //
 //   ui->_Track->setText();
-      ui->_Album->setText("Banana");
+
+   //   connect(_player, QOverload<QMultimedia::AvailabilityStatus>::of(&QMediaObject::availabilityChanged),this, SLOT(add()));
+   //   connect(_player, QOverload<QMultimedia::AvailabilityStatus>(&QMediaObject::availabilityChanged), this, SLOT(add()));
+   //   connect(_player, static_cast<void (QMultimedia::*)(QMultimedia::AvailabilityStatus)>(&QMediaObject::availabilityChanged), this, SLOT(add()));
+   //   connect(_player, QOverload<QMultimedia::AvailabilityStatus>(&QMediaObject::availabilityChanged), {  availability){  });});
 }
 
+//void myPlayer::addd()
+//{
+//    QString m_title = _player->metaData(QMediaMetaData::Title).toString();
+//    qDebug() << "1 "<< m_title;
+//}
 

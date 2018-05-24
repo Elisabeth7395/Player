@@ -7,6 +7,8 @@
 #include <QFileDialog>
 #include <QMediaMetaData>
 
+#include <QMultimedia>
+
 namespace Ui
 {
     class myPlayer;
@@ -22,6 +24,10 @@ public:
 public slots:
     void addMusic();
     void metaMusic();
+    void _error(QMultimedia::AvailabilityStatus er)
+    {
+        qDebug()<<er;
+    };
 private:
     Ui::myPlayer *ui;
     QMediaPlaylist *_playlist;
