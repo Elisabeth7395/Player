@@ -1,14 +1,5 @@
 #include "myplayer.h"
 #include "ui_myplayer.h"
-#include <QTime>
-#include <QDebug>
-//#include <QtTest/QTest>
-#include <QMediaContent>
-#include<conio.h>
-
-#include <QMediaContent>
-#include <QThread>
-
 
 myPlayer::myPlayer(QWidget *parent) :
     QDialog(parent),
@@ -18,8 +9,10 @@ myPlayer::myPlayer(QWidget *parent) :
 
     _player = new QMediaPlayer(this);
     _playlist = new QMediaPlaylist(_player);
+    _list = new QStandardItemModel(this);
     _player->setPlaylist(_playlist);
-    _playlist->setPlaybackMode(QMediaPlaylist::Loop);
+    _playlist->setPlaybackMode(QMediaPlaylist::Random);
+    ui->_Table->setModel(_list);
 
     connect(ui->Play, SIGNAL(clicked()), _player, SLOT(play()));
     connect(ui->Pause, SIGNAL(clicked()), _player, SLOT(pause()));
@@ -28,11 +21,13 @@ myPlayer::myPlayer(QWidget *parent) :
     connect(ui->Previous,SIGNAL(clicked()),_playlist,SLOT(previous()));
     connect(ui->Add,SIGNAL(clicked()),this, SLOT(addMusic()));
 //    connect(_playlist, SIGNAL(currentMediaChanged(QMediaContent)), this, SLOT(metaMusic()));
-    connect(_playlist, SIGNAL(currentMediaChanged(QMediaContent)), this, SLOT(metaMusic()));
-//    connect(_playlist, SIGNAL(availabilityChanged()), this, slot(metaMusic()));
-//    connect(_playlist, SIGNAL(QMediaObject::availabilityChanged()), this, SLOT(metaMusic()));
-    connect(_player, QOverload<QMultimedia::AvailabilityStatus>::of(&QMediaObject::availabilityChanged),
-            this, QOverload<QMultimedia::AvailabilityStatus>::of(&myPlayer::_error));
+
+    _list->setColumnCount(2);
+    _list->setHorizontalHeaderLabels(QStringList() << ("Music"));
+    ui->_Table->hideColumn(1);
+    ui->_Table->horizontalHeader()->setStretchLastSection(true);
+    connect (_playlist, QOverload<int>::of(&QMediaPlaylist::currentIndexChanged),
+                this , QOverload<int>::of(&myPlayer::metaMusic));
 }
 
 
@@ -43,64 +38,26 @@ myPlayer::~myPlayer()
 
 void myPlayer::addMusic()
 {
-    QStringList music = QFileDialog::getOpenFileNames(this, tr("Выбор музыки"), "", tr("Audio(*.mp3 *.wav *.ogg *.flac))"));
+    QStringList music = QFileDialog::getOpenFileNames(this, ("Выбор музыки"), "", ("Audio(*.mp3))"));
     foreach(QString _music, music)
     {
         _playlist->addMedia(QUrl(_music));
+
+        QList<QStandardItem*> _str;
+
+//        _str = new QStandardItem((QDir(_music).dirName()));
+//       _list->setItem(0, 0, str);
+        _str.append(new QStandardItem(QDir(_music).dirName()));
+        _str.append(new QStandardItem(_music));
+        _list->appendRow(_str);
     }
 }
 
-void myPlayer::metaMusic()
+void myPlayer::metaMusic(int number)
 {
-     ui->_Album->setText("Banana");
-
-
-//   connect (_player, QOverload < > :: of ( & QMediaObject :: metaDataChanged ) , [ = ] () { / * ... * / });
-//   connect(ui, SIGNAL(_playlist->QMediaObject::isMetaDataAvailable()), this, SLOT(addd));
-//
-//   connect(_playlist, SIGNAL(metaDataChanged()), ui->_Track, SLOT(setText(_player->metaData(QMediaMetaData::Title).toString())));
-//         ui->_Track->);
-//         ui->_Artist->setText( _player->metaData(QMediaMetaData::Author).toString());
-
-//
-//   QVariant vr;
-//   vr=_player->metaData(QMediaMetaData::Title);
-//   ui->_Track->setText(vr.toString());
-//
-//   QString track = ();
-//
-    //  -- Отсюда --
-    // QMediaContent *sss;
-    // sss = new QMediaContent(this);
-    // sss = _playlist->currentMedia();
-    // connect ( sss , QOverload < > :: of ( & QMediaObject :: metaDataChanged ) , [ = ] () { /* ... */ });
-
-//      ui->_Track->setText((sss.QMediaMetaData::metaData("Title")).toString() );
-//      ui->_Track->setText(_player->metaData(QMediaMetaData::Title).toString());
-
-/*        QThread::msleep(3000);
-    qDebug()<<"Song title: "<<(_player->metaData(QMediaMetaData::Title).toString());
-    qDebug()<<"Song duration: "<<_player->duration();
-    QMediaContent temp = _player->currentMedia();
-    QMediaResourceList temp_resourse_list = temp.resources();
-    QMediaResource temp_resource = temp_resourse_list.takeLast();
-    qDebug() << temp_resource.audioBitRate();
-//
-
-
-//     ui->_Artist->setText();*/
-//
-//   ui->_Track->setText();
-
-   //   connect(_player, QOverload<QMultimedia::AvailabilityStatus>::of(&QMediaObject::availabilityChanged),this, SLOT(add()));
-   //   connect(_player, QOverload<QMultimedia::AvailabilityStatus>(&QMediaObject::availabilityChanged), this, SLOT(add()));
-   //   connect(_player, static_cast<void (QMultimedia::*)(QMultimedia::AvailabilityStatus)>(&QMediaObject::availabilityChanged), this, SLOT(add()));
-   //   connect(_player, QOverload<QMultimedia::AvailabilityStatus>(&QMediaObject::availabilityChanged), {  availability){  });});
+//     ui->_Track->setText("Banana");
+     ui->_Track->setText(_list->data(_list->index(number, 0)).toString());
 }
 
-//void myPlayer::addd()
-//{
-//    QString m_title = _player->metaData(QMediaMetaData::Title).toString();
-//    qDebug() << "1 "<< m_title;
-//}
+
 
